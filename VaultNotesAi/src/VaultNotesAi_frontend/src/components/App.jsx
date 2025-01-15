@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "./Header";
 import Footer from "./Footer";
 import Notes from "./Notes";
@@ -9,17 +9,27 @@ import { VaultNotesAi_backend } from 'declarations/VaultNotesAi_backend';
 
 function App() {
 
-  const [notes, setNotes] = useState([])
+  const [notes, setNotes] = useState([]);
 
   function addNote(newNote) {
     VaultNotesAi_backend.createNote(newNote.title, newNote.content)
     setNotes(prevNotes => {
-      return [...prevNotes, newNote];
+      return [newNote, ...prevNotes]; 
 
     });
   }
 
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+
+  async function fetchData() {
+    const notesArray = await VaultNotesAi_backend.readNotes(); //changed
+    setNotes(notesArray);
+  }
   function deleteNote(id) {
+    VaultNotesAi_backend.removeNote(id); //changed
     setNotes(prevNotes => {
       return prevNotes.filter((noteItem, index) => {
         return index !== id;
